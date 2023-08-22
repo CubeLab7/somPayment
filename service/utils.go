@@ -2,7 +2,6 @@ package service
 
 import (
 	"crypto/aes"
-	"time"
 )
 
 const (
@@ -12,7 +11,7 @@ const (
 	USDCode = 840
 )
 
-func decryptAES(data, key []byte) ([]byte, error) {
+func DecryptAES(data, key []byte) ([]byte, error) {
 	cipher, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return nil, err
@@ -24,19 +23,15 @@ func decryptAES(data, key []byte) ([]byte, error) {
 		cipher.Decrypt(decrypted[bs:be], data[bs:be])
 	}
 
-	PKCS5UnPadding(decrypted)
+	pKCS5UnPadding(decrypted)
 
 	return decrypted, nil
 }
 
 // PKCS5UnPadding  pads a certain blob of data with necessary data to be used in AES block cipher
-func PKCS5UnPadding(src []byte) []byte {
+func pKCS5UnPadding(src []byte) []byte {
 	length := len(src)
 	unpadding := int(src[length-1])
 
 	return src[:(length - unpadding)]
-}
-
-func expiryDate() string {
-	return time.Now().AddDate(10, 0, 0).Format("20060102")
 }

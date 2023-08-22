@@ -2,7 +2,7 @@ package models
 
 import "github.com/google/uuid"
 
-type RequestToSom struct {
+type CartInit struct {
 	CurrencyCode      int       `json:"currencyCode"`
 	PayValue          int64     `json:"payValue"`
 	Description       string    `json:"description"`
@@ -19,16 +19,7 @@ type Recurring struct {
 	Active     bool      `json:"active"`
 }
 
-type ResponseFromSom struct {
-	Code int          `json:"code"`
-	Data ResponseData `json:"data"`
-}
-
-type ResponseData struct {
-	Id           string  `json:"id"`
-	ExchangeRate float64 `json:"exchangeRate"`
-	PaySum       float64 `json:"paySum"`
-	CurrencyCode int     `json:"currencyCode"`
-	PayLink      string  `json:"payLink"`
-	OrderId      string  `json:"orderId"`
+type Response struct {
+	Code int         `json:"code"`
+	Data interface{} `json:"data"`
 }

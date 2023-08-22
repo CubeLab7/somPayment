@@ -25,7 +25,7 @@ func (c *SOM) PrepareRequest(ctx context.Context, method string, body io.Reader)
 	return
 }
 
-func (c *SOM) SendRequest(req *http.Request) (response models.ResponseFromSom, err error) {
+func (c *SOM) SendRequest(req *http.Request) (response models.Response, err error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
 		err = fmt.Errorf("can't do request: %s", err)

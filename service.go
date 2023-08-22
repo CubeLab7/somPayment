@@ -1,4 +1,4 @@
-package service
+package somPayment
 
 import (
 	"bytes"
@@ -8,6 +8,7 @@ import (
 	"github.com/dwnGnL/somPayment/config"
 	"github.com/dwnGnL/somPayment/lib"
 	"github.com/dwnGnL/somPayment/models"
+	"github.com/dwnGnL/somPayment/service"
 	jsoniter "github.com/json-iterator/go"
 	"strings"
 )
@@ -28,7 +29,7 @@ func New(config *config.Config, som *lib.SOM) *Service {
 	}
 }
 
-func (s *Service) CartInit(ctx context.Context, data models.RequestToSom) (response models.ResponseFromSom, dataSave string, err error) {
+func (s *Service) CartInit(ctx context.Context, data models.CartInit) (response models.Response, err error) {
 	// отправка в SOM
 	body := new(bytes.Buffer)
 	err = jsoniter.NewEncoder(body).Encode(data)
@@ -36,8 +37,6 @@ func (s *Service) CartInit(ctx context.Context, data models.RequestToSom) (respo
 		err = fmt.Errorf("can't encode request: %s", err)
 		return
 	}
-
-	dataSave = fmt.Sprint(body)
 
 	req, err := s.som.PrepareRequest(ctx, initiatePay, body)
 	if err != nil {
@@ -59,14 +58,14 @@ func (s *Service) Callback(ctx context.Context, data string) (err error) {
 		return
 	}
 
-	resp, err := decryptAES(encryptedBytes, []byte(s.config.Key))
+	resp, err := service.DecryptAES(encryptedBytes, []byte(s.config.Key))
 	if err != nil {
 		return
 	}
 
 	cleaned := strings.ReplaceAll(string(resp), "\u0001", "")
 
-	var response CallbackReq
+	var response service.CallbackReq
 	if err = jsoniter.Unmarshal([]byte(cleaned), &response); err != nil {
 		return
 	}
