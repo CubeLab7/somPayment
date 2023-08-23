@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -26,10 +28,12 @@ func New(config *Config) *Service {
 	}
 }
 
-func (s *Service) CartInit(ctx context.Context, data CartInitReq) (response InitPaymentResp, err error) {
+func (s *Service) CartInit(ctx context.Context, data CartInitReq) (response *InitPaymentResp, err error) {
+	response = new(InitPaymentResp)
+
 	// отправка в SOM
 	body := new(bytes.Buffer)
-	err = jsoniter.NewEncoder(body).Encode(data)
+	err = json.NewEncoder(body).Encode(data)
 	if err != nil {
 		err = fmt.Errorf("can't encode request: %s", err)
 		return
@@ -75,7 +79,7 @@ func sendRequest(method string, body io.Reader, config *Config, response interfa
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("Accept", "application/json")
-	req.Header.Add("Authorization", basicAuth(config.URI, config.Pass))
+	req.Header.Add("Authorization", basicAuth(config.Login, config.Pass))
 
 	httpClient := http.Client{
 		Transport: &http.Transport{
@@ -97,7 +101,9 @@ func sendRequest(method string, body io.Reader, config *Config, response interfa
 		return
 	}
 
-	if err = jsoniter.Unmarshal(respBody, &response); err != nil {
+	log.Println("Resp: ", string(respBody))
+
+	if err = json.Unmarshal(respBody, &response); err != nil {
 		err = fmt.Errorf("can't unmarshall SomPayments resp: '%v'. Err: %w", string(respBody), err)
 		return
 	}
