@@ -5,26 +5,24 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"github.com/dwnGnL/somPayment/config"
 	"github.com/dwnGnL/somPayment/lib"
 	"github.com/dwnGnL/somPayment/models"
-	"github.com/dwnGnL/somPayment/service"
 	jsoniter "github.com/json-iterator/go"
 	"strings"
 )
 
 type Service struct {
 	som    *lib.SOM
-	config *config.Config
+	config *Config
 }
 
 const (
 	initiatePay = "/v1/processing/init"
 )
 
-func New(config *config.Config, som *lib.SOM) *Service {
+func New(config *Config) *Service {
 	return &Service{
-		som:    som,
+		som:    lib.New(config),
 		config: config,
 	}
 }
@@ -58,14 +56,14 @@ func (s *Service) Callback(ctx context.Context, data string) (err error) {
 		return
 	}
 
-	resp, err := service.DecryptAES(encryptedBytes, []byte(s.config.Key))
+	resp, err := DecryptAES(encryptedBytes, []byte(s.config.Key))
 	if err != nil {
 		return
 	}
 
 	cleaned := strings.ReplaceAll(string(resp), "\u0001", "")
 
-	var response service.CallbackReq
+	var response models.CallbackReq
 	if err = jsoniter.Unmarshal([]byte(cleaned), &response); err != nil {
 		return
 	}

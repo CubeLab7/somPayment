@@ -1,8 +1,7 @@
 package lib
 
 import (
-	"context"
-	"github.com/dwnGnL/somPayment/config"
+	"github.com/dwnGnL/somPayment"
 	"net/http"
 	"time"
 )
@@ -14,10 +13,10 @@ const (
 
 type SOM struct {
 	client *http.Client
-	config *config.Config
+	config *somPayment.Config
 }
 
-func New(ctx *context.Context, config *config.Config) *SOM {
+func New(config *somPayment.Config) *SOM {
 	httpClient := http.Client{
 		Transport: &http.Transport{
 			IdleConnTimeout: time.Second * idleConnTimeoutSec,

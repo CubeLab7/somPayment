@@ -1,4 +1,4 @@
-package config
+package somPayment
 
 type Config struct {
 	Login string
