@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"github.com/dwnGnL/somPayment"
 	jsoniter "github.com/json-iterator/go"
 	"io"
 	"net/http"
@@ -25,7 +24,7 @@ func (c *SOM) PrepareRequest(ctx context.Context, method string, body io.Reader)
 	return
 }
 
-func (c *SOM) SendRequest(req *http.Request) (response somPayment.Response, err error) {
+func (c *SOM) SendRequest(req *http.Request, response interface{}) (err error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
 		err = fmt.Errorf("can't do request: %s", err)

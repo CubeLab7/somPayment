@@ -26,7 +26,7 @@ func New(config *Config) *Service {
 	}
 }
 
-func (s *Service) CartInit(ctx context.Context, data CartInit) (response Response, err error) {
+func (s *Service) CartInit(ctx context.Context, data CartInitReq) (response InitPaymentResp, err error) {
 	// отправка в SOM
 	body := new(bytes.Buffer)
 	err = jsoniter.NewEncoder(body).Encode(data)
@@ -35,13 +35,12 @@ func (s *Service) CartInit(ctx context.Context, data CartInit) (response Respons
 		return
 	}
 
-	req, err := s.som.PrepareRequest(ctx, initiatePay, body)
+	request, err := s.som.PrepareRequest(ctx, initiatePay, body)
 	if err != nil {
 		return
 	}
 
-	response, err = s.som.SendRequest(req)
-	if err != nil {
+	if err = s.som.SendRequest(request, response); err != nil {
 		return
 	}
 
