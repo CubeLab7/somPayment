@@ -21,7 +21,7 @@ const (
 
 func New(config *Config) *Service {
 	return &Service{
-		som:    lib.New(config),
+		//som:    lib.New(config),
 		config: config,
 	}
 }
