@@ -2,13 +2,8 @@ package somPayment
 
 import (
 	"crypto/aes"
-)
-
-const (
-	successParam = "success"
-	failParam    = "fail"
-
-	USDCode = 840
+	"encoding/base64"
+	"fmt"
 )
 
 func decryptAES(data, key []byte) ([]byte, error) {
@@ -34,4 +29,9 @@ func pKCS5UnPadding(src []byte) []byte {
 	unpadding := int(src[length-1])
 
 	return src[:(length - unpadding)]
+}
+
+func basicAuth(login, pass string) (basic string) {
+	basic = "Basic " + base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", login, pass)))
+	return
 }

@@ -21,6 +21,11 @@ type Recurring struct {
 	Active     bool      `json:"active"`
 }
 
+type InitPaymentResp struct {
+	Code int          `json:"code"`
+	Data CartInitResp `json:"data"`
+}
+
 type CartInitResp struct {
 	Id           string  `json:"id"`
 	ExchangeRate float64 `json:"exchangeRate"`
@@ -28,11 +33,6 @@ type CartInitResp struct {
 	CurrencyCode int     `json:"currencyCode"`
 	PayLink      string  `json:"payLink"`
 	OrderId      string  `json:"orderId"`
-}
-
-type InitPaymentResp struct {
-	Code int          `json:"code"`
-	Data CartInitResp `json:"data"`
 }
 
 type CallbackReq struct {
