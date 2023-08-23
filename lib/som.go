@@ -4,13 +4,15 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/dwnGnL/somPayment"
 	jsoniter "github.com/json-iterator/go"
 	"io"
 	"net/http"
+	"time"
 )
 
-func (c *SOM) PrepareRequest(ctx context.Context, method string, body io.Reader) (req *http.Request, err error) {
-	url := fmt.Sprintf("%v/%v", c.config.URI, method)
+func PrepareRequest(ctx context.Context, method string, body io.Reader, config *somPayment.Config) (req *http.Request, err error) {
+	url := fmt.Sprintf("%v/%v", config.URI, method)
 
 	req, err = http.NewRequest(http.MethodPost, url, body)
 	if err != nil {
@@ -20,12 +22,19 @@ func (c *SOM) PrepareRequest(ctx context.Context, method string, body io.Reader)
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("Accept", "application/json")
-	req.Header.Add("Authorization", basicAuth(c.config.URI, c.config.Pass))
+	req.Header.Add("Authorization", basicAuth(config.URI, config.Pass))
 	return
 }
 
-func (c *SOM) SendRequest(req *http.Request, response interface{}) (err error) {
-	resp, err := c.client.Do(req)
+func SendRequest(req *http.Request, response interface{}, config *somPayment.Config) (err error) {
+	httpClient := http.Client{
+		Transport: &http.Transport{
+			IdleConnTimeout: time.Second * time.Duration(config.IdleConnTimeoutSec),
+		},
+		Timeout: time.Second * time.Duration(config.RequestTimeoutSec),
+	}
+
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		err = fmt.Errorf("can't do request: %s", err)
 		return

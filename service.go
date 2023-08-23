@@ -11,7 +11,6 @@ import (
 )
 
 type Service struct {
-	som    *lib.SOM
 	config *Config
 }
 
@@ -21,7 +20,6 @@ const (
 
 func New(config *Config) *Service {
 	return &Service{
-		//som:    lib.New(config),
 		config: config,
 	}
 }
@@ -35,12 +33,12 @@ func (s *Service) CartInit(ctx context.Context, data CartInitReq) (response Init
 		return
 	}
 
-	request, err := s.som.PrepareRequest(ctx, initiatePay, body)
+	request, err := lib.PrepareRequest(ctx, initiatePay, body, s.config)
 	if err != nil {
 		return
 	}
 
-	if err = s.som.SendRequest(request, response); err != nil {
+	if err = lib.SendRequest(request, response, s.config); err != nil {
 		return
 	}
 
