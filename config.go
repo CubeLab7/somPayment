@@ -1,8 +1,10 @@
 package somPayment
 
 type Config struct {
-	Login string
-	Pass  string
-	Key   string
-	URI   string
+	IdleConnTimeoutSec int
+	RequestTimeoutSec  int
+	Login              string
+	Pass               string
+	Key                string
+	URI                string
 }

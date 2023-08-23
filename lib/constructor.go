@@ -6,11 +6,6 @@ import (
 	"time"
 )
 
-const (
-	idleConnTimeoutSec = 60
-	requestTimeoutSec  = 10
-)
-
 type SOM struct {
 	client *http.Client
 	config *somPayment.Config
@@ -19,9 +14,9 @@ type SOM struct {
 func New(config *somPayment.Config) *SOM {
 	httpClient := http.Client{
 		Transport: &http.Transport{
-			IdleConnTimeout: time.Second * idleConnTimeoutSec,
+			IdleConnTimeout: time.Second * time.Duration(config.IdleConnTimeoutSec),
 		},
-		Timeout: time.Second * requestTimeoutSec,
+		Timeout: time.Second * time.Duration(config.RequestTimeoutSec),
 	}
 
 	return &SOM{
