@@ -1,4 +1,4 @@
-package models
+package somPayment
 
 import "github.com/google/uuid"
 

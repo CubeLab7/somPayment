@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/dwnGnL/somPayment/lib"
-	"github.com/dwnGnL/somPayment/models"
 	jsoniter "github.com/json-iterator/go"
 	"strings"
 )
@@ -27,7 +26,7 @@ func New(config *Config) *Service {
 	}
 }
 
-func (s *Service) CartInit(ctx context.Context, data models.CartInit) (response models.Response, err error) {
+func (s *Service) CartInit(ctx context.Context, data CartInit) (response Response, err error) {
 	// отправка в SOM
 	body := new(bytes.Buffer)
 	err = jsoniter.NewEncoder(body).Encode(data)
@@ -63,7 +62,7 @@ func (s *Service) Callback(ctx context.Context, data string) (err error) {
 
 	cleaned := strings.ReplaceAll(string(resp), "\u0001", "")
 
-	var response models.CallbackReq
+	var response CallbackReq
 	if err = jsoniter.Unmarshal([]byte(cleaned), &response); err != nil {
 		return
 	}
