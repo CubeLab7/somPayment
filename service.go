@@ -33,12 +33,12 @@ func (s *Service) CartInit(ctx context.Context, data CartInitReq) (response Init
 		return
 	}
 
-	request, err := lib.PrepareRequest(ctx, initiatePay, body, s.config)
+	request, err := lib.PrepareRequest(ctx, initiatePay, body)
 	if err != nil {
 		return
 	}
 
-	if err = lib.SendRequest(request, response, s.config); err != nil {
+	if err = lib.SendRequest(request, response); err != nil {
 		return
 	}
 
