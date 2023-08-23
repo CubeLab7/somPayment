@@ -55,7 +55,7 @@ func (s *Service) Callback(ctx context.Context, data string) (err error) {
 		return
 	}
 
-	resp, err := DecryptAES(encryptedBytes, []byte(s.config.Key))
+	resp, err := decryptAES(encryptedBytes, []byte(s.config.Key))
 	if err != nil {
 		return
 	}

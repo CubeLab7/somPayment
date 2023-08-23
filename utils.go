@@ -11,7 +11,7 @@ const (
 	USDCode = 840
 )
 
-func DecryptAES(data, key []byte) ([]byte, error) {
+func decryptAES(data, key []byte) ([]byte, error) {
 	cipher, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return nil, err
