@@ -2,7 +2,15 @@ package somPayment
 
 import (
 	"github.com/google/uuid"
+	"io"
 )
+
+type SendParams struct {
+	Path       string
+	HttpMethod string
+	Body       io.Reader
+	Response   interface{}
+}
 
 type CartInitReq struct {
 	CurrencyCode      int        `json:"currencyCode"`

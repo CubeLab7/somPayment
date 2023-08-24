@@ -6,10 +6,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	jsoniter "github.com/json-iterator/go"
 	"io"
-	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -39,15 +38,21 @@ func (s *Service) CartInit(ctx context.Context, data CartInitReq) (response *Ini
 		return
 	}
 
-	if err = sendRequest(initiatePay, body, s.config, response); err != nil {
+	inputs := SendParams{
+		Path:       initiatePay,
+		HttpMethod: http.MethodPost,
+		Body:       body,
+		Response:   response,
+	}
+
+	if err = sendRequest(inputs, s.config); err != nil {
 		return
 	}
 
 	return
 }
 
-func (s *Service) Callback(ctx context.Context, data string) (err error) {
-	// Декодируем тело из Base64
+func (s *Service) Callback(ctx context.Context, data string) (response CallbackReq, err error) {
 	encryptedBytes, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
 		return
@@ -60,21 +65,24 @@ func (s *Service) Callback(ctx context.Context, data string) (err error) {
 
 	cleaned := strings.ReplaceAll(string(resp), "\u0001", "")
 
-	var response CallbackReq
-	if err = jsoniter.Unmarshal([]byte(cleaned), &response); err != nil {
+	if err = json.Unmarshal([]byte(cleaned), &response); err != nil {
 		return
 	}
 
 	return
 }
 
-func sendRequest(method string, body io.Reader, config *Config, response interface{}) (err error) {
-	url := fmt.Sprintf("%v/%v", config.URI, method)
-
-	req, err := http.NewRequest(http.MethodPost, url, body)
+func sendRequest(inputs SendParams, config *Config) (err error) {
+	uri, err := url.Parse(config.URI)
 	if err != nil {
-		err = fmt.Errorf("can't create request for Som payment system: %s", err)
-		return
+		return fmt.Errorf("cannot parse url! Err: %s", err)
+	}
+
+	uri.JoinPath(inputs.Path)
+
+	req, err := http.NewRequest(inputs.HttpMethod, uri.String(), inputs.Body)
+	if err != nil {
+		return fmt.Errorf("can't create request for Som payment system! Err: %s", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
@@ -90,22 +98,17 @@ func sendRequest(method string, body io.Reader, config *Config, response interfa
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		err = fmt.Errorf("can't do request: %s", err)
-		return
+		return fmt.Errorf("can't do request! Err: %s", err)
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		err = fmt.Errorf("can't read response body: %s", err)
-		return
+		return fmt.Errorf("can't read response body! Err: %w", err)
 	}
 
-	log.Println("Resp: ", string(respBody))
-
-	if err = json.Unmarshal(respBody, &response); err != nil {
-		err = fmt.Errorf("can't unmarshall SomPayments resp: '%v'. Err: %w", string(respBody), err)
-		return
+	if err = json.Unmarshal(respBody, &inputs.Response); err != nil {
+		return fmt.Errorf("can't unmarshall SomPayments resp: '%v'. Err: %w", string(respBody), err)
 	}
 
 	return
