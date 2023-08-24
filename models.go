@@ -43,7 +43,7 @@ type CartInitResp struct {
 	OrderId      string  `json:"orderId"`
 }
 
-type CallbackReq struct {
+type CallbackResp struct {
 	OrderID          string `json:"orderId"`
 	Status           int    `json:"status"`
 	StatusName       string `json:"statusName"`

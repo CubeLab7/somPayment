@@ -45,14 +45,14 @@ func (s *Service) CartInit(ctx context.Context, data CartInitReq) (response *Ini
 		Response:   response,
 	}
 
-	if err = sendRequest(inputs, s.config); err != nil {
+	if err = sendRequest(s.config, inputs); err != nil {
 		return
 	}
 
 	return
 }
 
-func (s *Service) Callback(ctx context.Context, data string) (response CallbackReq, err error) {
+func (s *Service) Callback(ctx context.Context, data string) (response CallbackResp, err error) {
 	encryptedBytes, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
 		return
@@ -72,15 +72,15 @@ func (s *Service) Callback(ctx context.Context, data string) (response CallbackR
 	return
 }
 
-func sendRequest(inputs SendParams, config *Config) (err error) {
+func sendRequest(config *Config, inputs SendParams) (err error) {
 	uri, err := url.Parse(config.URI)
 	if err != nil {
 		return fmt.Errorf("cannot parse url! Err: %s", err)
 	}
 
-	uri.JoinPath(inputs.Path)
+	finalUrl := uri.JoinPath(inputs.Path)
 
-	req, err := http.NewRequest(inputs.HttpMethod, uri.String(), inputs.Body)
+	req, err := http.NewRequest(inputs.HttpMethod, finalUrl.String(), inputs.Body)
 	if err != nil {
 		return fmt.Errorf("can't create request for Som payment system! Err: %s", err)
 	}
