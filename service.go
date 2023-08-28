@@ -64,6 +64,7 @@ func (s *Service) Callback(ctx context.Context, data string) (response CallbackR
 	}
 
 	cleaned := strings.ReplaceAll(string(resp), "\u0001", "")
+	cleaned = strings.ReplaceAll(cleaned, "\v", "")
 
 	if err = json.Unmarshal([]byte(cleaned), &response); err != nil {
 		return
