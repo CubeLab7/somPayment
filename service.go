@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 )
@@ -75,14 +74,9 @@ func (s *Service) Callback(ctx context.Context, data string) (response CallbackR
 }
 
 func sendRequest(config *Config, inputs SendParams) (err error) {
-	uri, err := url.Parse(config.URI)
-	if err != nil {
-		return fmt.Errorf("cannot parse url! Err: %s", err)
-	}
+	finalUrl := fmt.Sprintf("%v/%v", config.URI, inputs.Path)
 
-	finalUrl := uri.JoinPath(inputs.Path)
-
-	req, err := http.NewRequest(inputs.HttpMethod, finalUrl.String(), inputs.Body)
+	req, err := http.NewRequest(inputs.HttpMethod, finalUrl, inputs.Body)
 	if err != nil {
 		return fmt.Errorf("can't create request for Som payment system! Err: %s", err)
 	}
