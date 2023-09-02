@@ -24,11 +24,11 @@ type CartInitReq struct {
 }
 
 type Recurring struct {
-	RecurringId string    `json:"recurringId"`
-	ClientId    uuid.UUID `json:"clientId"`
-	ExpiryDate  string    `json:"expiryDate"`
-	Frequency   int       `json:"frequency"`
-	Active      bool      `json:"active"`
+	RecurringId string    `json:"recurringId,omitempty"`
+	ClientId    uuid.UUID `json:"clientId,omitempty"`
+	ExpiryDate  string    `json:"expiryDate,omitempty"`
+	Frequency   int       `json:"frequency,omitempty"`
+	Active      bool      `json:"active,omitempty"`
 }
 
 type InitPaymentResp struct {

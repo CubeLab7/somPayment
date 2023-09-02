@@ -103,6 +103,10 @@ func sendRequest(config *Config, inputs SendParams) (err error) {
 		return fmt.Errorf("can't read response body! Err: %w", err)
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("error: %v", string(respBody))
+	}
+
 	if err = json.Unmarshal(respBody, &inputs.Response); err != nil {
 		return fmt.Errorf("can't unmarshall SomPayments resp: '%v'. Err: %w", string(respBody), err)
 	}
