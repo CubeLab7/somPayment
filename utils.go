@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"encoding/base64"
 	"fmt"
+	"regexp"
 )
 
 func decryptAES(data, key []byte) ([]byte, error) {
@@ -34,4 +35,15 @@ func pKCS5UnPadding(src []byte) []byte {
 func basicAuth(login, pass string) (basic string) {
 	basic = "Basic " + base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", login, pass)))
 	return
+}
+
+func cleanJSONString(input []byte) string {
+
+	// Создаем регулярное выражение, которое находит все управляющие символы и символы, не входящие в диапазон ASCII.
+	re := regexp.MustCompile("[[:cntrl:]]|[^\x20-\x7E]")
+
+	// Удаляем все найденные символы.
+	cleaned := re.ReplaceAllString(string(input), "")
+
+	return cleaned
 }

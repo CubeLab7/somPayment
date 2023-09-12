@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -62,9 +61,7 @@ func (s *Service) Callback(ctx context.Context, data string) (response CallbackR
 		return
 	}
 
-	cleaned := strings.ReplaceAll(string(resp), "\u0001", "")
-	cleaned = strings.ReplaceAll(cleaned, "\v", "")
-	cleaned = strings.ReplaceAll(cleaned, "\x0e", "")
+	cleaned := cleanJSONString(resp)
 
 	if err = json.Unmarshal([]byte(cleaned), &response); err != nil {
 		return
