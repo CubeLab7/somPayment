@@ -13,14 +13,14 @@ type SendParams struct {
 }
 
 type CartInitReq struct {
-	CurrencyCode      int        `json:"currencyCode"`
-	PayValue          int64      `json:"payValue"`
-	Description       string     `json:"description"`
-	ReturnSuccessLink string     `json:"returnSuccessLink"`
-	TimeToLive        int        `json:"timeToLive"`
-	ReturnFailLink    string     `json:"returnFailLink"`
-	CallbackUrl       string     `json:"callbackUrl"`
-	Recurring         *Recurring `json:"recurring,omitempty"`
+	CurrencyCode int        `json:"currencyCode"`
+	PayValue     int64      `json:"payValue"`
+	Description  string     `json:"description"`
+	SuccessLink  string     `json:"returnSuccessLink"`
+	TimeToLive   int        `json:"timeToLive"`
+	FailLink     string     `json:"returnFailLink"`
+	CallbackUrl  string     `json:"callbackUrl"`
+	Recurring    *Recurring `json:"recurring,omitempty"`
 }
 
 type Recurring struct {
