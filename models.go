@@ -1,7 +1,6 @@
 package somPayment
 
 import (
-	"github.com/google/uuid"
 	"io"
 )
 
@@ -24,11 +23,11 @@ type CartInitReq struct {
 }
 
 type Recurring struct {
-	RecurringId string    `json:"recurringId,omitempty"`
-	ClientId    uuid.UUID `json:"clientId,omitempty"`
-	ExpiryDate  string    `json:"expiryDate,omitempty"`
-	Frequency   int       `json:"frequency,omitempty"`
-	Active      bool      `json:"active,omitempty"`
+	RecurringId string `json:"recurringId,omitempty"`
+	ClientId    string `json:"clientId,omitempty"`
+	ExpiryDate  string `json:"expiryDate,omitempty"`
+	Frequency   int    `json:"frequency,omitempty"`
+	Active      bool   `json:"active,omitempty"`
 }
 
 type InitPaymentResp struct {
@@ -46,12 +45,12 @@ type CartInitResp struct {
 }
 
 type CallbackResp struct {
-	OrderID          string    `json:"orderId"`
-	Status           int       `json:"status"`
-	StatusName       string    `json:"statusName"`
-	CreateDate       string    `json:"createDate"`
-	UpdateDate       string    `json:"updateDate"`
-	Recurring        Recurring `json:"recurring"`
-	ProcessingStatus string    `json:"processingStatus"`
-	Pan              string    `json:"pan"`
+	OrderID    string `json:"orderId"`
+	Status     int    `json:"status"`
+	StatusName string `json:"statusName"`
+	CreateDate string `json:"createDate"`
+	UpdateDate string `json:"updateDate"`
+	Recurring
+	ProcessingStatus string `json:"processingStatus"`
+	Pan              string `json:"pan"`
 }
