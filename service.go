@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -16,7 +17,11 @@ type Service struct {
 }
 
 const (
-	initiatePay = "/v1/processing/init"
+	initiatePay   = "/v1/processing/init"
+	postCheck     = "/v1/processing/"
+	refund        = "/v1/processing/refund"
+	exchangeRate  = "/v1/processing/exchangeRate"
+	recurringList = "/v1/processing/recurringList"
 )
 
 func New(config *Config) *Service {
@@ -70,8 +75,97 @@ func (s *Service) Callback(ctx context.Context, data string) (response CallbackR
 	return
 }
 
+// Получение статуса заказа
+func (s *Service) PostCheck(ctx context.Context, orderID string) (response *PostCheckResp, err error) {
+	response = new(PostCheckResp)
+
+	inputs := SendParams{
+		Path:       postCheck,
+		HttpMethod: http.MethodGet,
+		QueryParams: map[string]string{
+			"orderId": orderID,
+		},
+		Response: response,
+	}
+
+	if err = sendRequest(s.config, inputs); err != nil {
+		return
+	}
+
+	return
+}
+
+// Проведениe полного возврата
+func (s *Service) Refund(ctx context.Context, orderID string) (response *RefundResp, err error) {
+	response = new(RefundResp)
+
+	inputs := SendParams{
+		Path:       refund,
+		HttpMethod: http.MethodDelete,
+		QueryParams: map[string]string{
+			"transactionId": orderID,
+		},
+		Response: response,
+	}
+
+	if err = sendRequest(s.config, inputs); err != nil {
+		return
+	}
+
+	return
+}
+
+// Получение курса обмена валюты
+func (s *Service) ExchangeRate(ctx context.Context) (response *ExchangeRateResp, err error) {
+	response = new(ExchangeRateResp)
+
+	inputs := SendParams{
+		Path:       exchangeRate,
+		HttpMethod: http.MethodGet,
+		Response:   response,
+	}
+
+	if err = sendRequest(s.config, inputs); err != nil {
+		return
+	}
+
+	return
+}
+
+// Получения списка рекуррентов
+func (s *Service) RecurringList(ctx context.Context) (response *RecurringListResp, err error) {
+	response = new(RecurringListResp)
+
+	inputs := SendParams{
+		Path:       recurringList,
+		HttpMethod: http.MethodGet,
+		Response:   response,
+	}
+
+	if err = sendRequest(s.config, inputs); err != nil {
+		return
+	}
+
+	return
+}
+
 func sendRequest(config *Config, inputs SendParams) (err error) {
-	finalUrl := fmt.Sprintf("%v/%v", config.URI, inputs.Path)
+	baseURL, err := url.Parse(config.URI)
+	if err != nil {
+		return fmt.Errorf("can't parse URI from config: %w", err)
+	}
+
+	// Добавляем путь из inputs.Path к базовому URL
+	baseURL.Path += inputs.Path
+
+	// Устанавливаем параметры запроса из queryParams
+	query := baseURL.Query()
+	for key, value := range inputs.QueryParams {
+		query.Set(key, value)
+	}
+	baseURL.RawQuery = query.Encode()
+
+	finalUrl := baseURL.String()
 
 	req, err := http.NewRequest(inputs.HttpMethod, finalUrl, inputs.Body)
 	if err != nil {

@@ -2,13 +2,15 @@ package somPayment
 
 import (
 	"io"
+	"time"
 )
 
 type SendParams struct {
-	Path       string
-	HttpMethod string
-	Body       io.Reader
-	Response   interface{}
+	Path        string
+	HttpMethod  string
+	Body        io.Reader
+	QueryParams map[string]string
+	Response    interface{}
 }
 
 type CartInitReq struct {
@@ -36,6 +38,25 @@ type InitPaymentResp struct {
 	Data CartInitResp `json:"data"`
 }
 
+type PostCheckResp struct {
+	Code int          `json:"code"`
+	Data CallbackResp `json:"data"`
+}
+
+type RefundResp struct {
+	Code    int          `json:"code"`
+	Data    CallbackResp `json:"data"`
+	Message string       `json:"message"`
+}
+
+type ExchangeRateResp struct {
+	Code int `json:"code"`
+	Data struct {
+		ConversionRate float64   `json:"conversionRate"`
+		ValidDateFrom  time.Time `json:"validDateFrom"`
+	} `json:"data"`
+}
+
 type CartInitResp struct {
 	Id           string  `json:"id"`
 	ExchangeRate float64 `json:"exchangeRate"`
@@ -54,4 +75,17 @@ type CallbackResp struct {
 	Recurring
 	ProcessingStatus string `json:"processingStatus"`
 	Pan              string `json:"pan"`
+}
+
+type RecurringItem struct {
+	RecurringID string `json:"recurringId"`
+	ClientID    string `json:"clientId"`
+	ExpiryDate  string `json:"expiryDate"`
+	Frequency   int    `json:"frequency"`
+	Active      bool   `json:"active"`
+}
+
+type RecurringListResp struct {
+	Code int             `json:"code"`
+	Data []RecurringItem `json:"data"`
 }
