@@ -75,6 +75,7 @@ type CallbackResp struct {
 	Recurring
 	ProcessingStatus string `json:"processingStatus"`
 	Pan              string `json:"pan"`
+	Expiration       string `json:"expiration"`
 }
 
 type RecurringItem struct {
