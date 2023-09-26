@@ -30,7 +30,7 @@ func New(config *Config) *Service {
 	}
 }
 
-func (s *Service) CartInit(ctx context.Context, data CartInitReq) (response *InitPaymentResp, err error) {
+func (s *Service) CartInit(ctx context.Context, data CartInitReq) (respBody []byte, response *InitPaymentResp, err error) {
 	response = new(InitPaymentResp)
 
 	// отправка в SOM
@@ -48,14 +48,14 @@ func (s *Service) CartInit(ctx context.Context, data CartInitReq) (response *Ini
 		Response:   response,
 	}
 
-	if err = sendRequest(s.config, inputs); err != nil {
+	if respBody, err = sendRequest(s.config, inputs); err != nil {
 		return
 	}
 
 	return
 }
 
-func (s *Service) Callback(ctx context.Context, data string) (response CallbackResp, err error) {
+func (s *Service) Callback(ctx context.Context, data string) (respBody []byte, response CallbackResp, err error) {
 	encryptedBytes, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
 		return
@@ -67,8 +67,9 @@ func (s *Service) Callback(ctx context.Context, data string) (response CallbackR
 	}
 
 	cleaned := cleanJSONString(resp)
+	respBody = []byte(cleaned)
 
-	if err = json.Unmarshal([]byte(cleaned), &response); err != nil {
+	if err = json.Unmarshal(respBody, &response); err != nil {
 		return
 	}
 
@@ -76,7 +77,7 @@ func (s *Service) Callback(ctx context.Context, data string) (response CallbackR
 }
 
 // Получение статуса заказа
-func (s *Service) PostCheck(ctx context.Context, orderID string) (response *PostCheckResp, err error) {
+func (s *Service) PostCheck(ctx context.Context, orderID string) (respBody []byte, response *PostCheckResp, err error) {
 	response = new(PostCheckResp)
 
 	inputs := SendParams{
@@ -88,7 +89,7 @@ func (s *Service) PostCheck(ctx context.Context, orderID string) (response *Post
 		Response: response,
 	}
 
-	if err = sendRequest(s.config, inputs); err != nil {
+	if respBody, err = sendRequest(s.config, inputs); err != nil {
 		return
 	}
 
@@ -96,7 +97,7 @@ func (s *Service) PostCheck(ctx context.Context, orderID string) (response *Post
 }
 
 // Проведениe полного возврата
-func (s *Service) Refund(ctx context.Context, orderID string) (response *RefundResp, err error) {
+func (s *Service) Refund(ctx context.Context, orderID string) (respBody []byte, response *RefundResp, err error) {
 	response = new(RefundResp)
 
 	inputs := SendParams{
@@ -108,7 +109,7 @@ func (s *Service) Refund(ctx context.Context, orderID string) (response *RefundR
 		Response: response,
 	}
 
-	if err = sendRequest(s.config, inputs); err != nil {
+	if respBody, err = sendRequest(s.config, inputs); err != nil {
 		return
 	}
 
@@ -116,7 +117,7 @@ func (s *Service) Refund(ctx context.Context, orderID string) (response *RefundR
 }
 
 // Получение курса обмена валюты
-func (s *Service) ExchangeRate(ctx context.Context) (response *ExchangeRateResp, err error) {
+func (s *Service) ExchangeRate(ctx context.Context) (respBody []byte, response *ExchangeRateResp, err error) {
 	response = new(ExchangeRateResp)
 
 	inputs := SendParams{
@@ -125,7 +126,7 @@ func (s *Service) ExchangeRate(ctx context.Context) (response *ExchangeRateResp,
 		Response:   response,
 	}
 
-	if err = sendRequest(s.config, inputs); err != nil {
+	if respBody, err = sendRequest(s.config, inputs); err != nil {
 		return
 	}
 
@@ -133,7 +134,7 @@ func (s *Service) ExchangeRate(ctx context.Context) (response *ExchangeRateResp,
 }
 
 // Получения списка рекуррентов
-func (s *Service) RecurringList(ctx context.Context) (response *RecurringListResp, err error) {
+func (s *Service) RecurringList(ctx context.Context) (respBody []byte, response *RecurringListResp, err error) {
 	response = new(RecurringListResp)
 
 	inputs := SendParams{
@@ -142,17 +143,17 @@ func (s *Service) RecurringList(ctx context.Context) (response *RecurringListRes
 		Response:   response,
 	}
 
-	if err = sendRequest(s.config, inputs); err != nil {
+	if respBody, err = sendRequest(s.config, inputs); err != nil {
 		return
 	}
 
 	return
 }
 
-func sendRequest(config *Config, inputs SendParams) (err error) {
+func sendRequest(config *Config, inputs SendParams) (respBody []byte, err error) {
 	baseURL, err := url.Parse(config.URI)
 	if err != nil {
-		return fmt.Errorf("can't parse URI from config: %w", err)
+		return respBody, fmt.Errorf("can't parse URI from config: %w", err)
 	}
 
 	// Добавляем путь из inputs.Path к базовому URL
@@ -169,7 +170,7 @@ func sendRequest(config *Config, inputs SendParams) (err error) {
 
 	req, err := http.NewRequest(inputs.HttpMethod, finalUrl, inputs.Body)
 	if err != nil {
-		return fmt.Errorf("can't create request for Som payment system! Err: %s", err)
+		return respBody, fmt.Errorf("can't create request for Som payment system! Err: %s", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
@@ -185,21 +186,21 @@ func sendRequest(config *Config, inputs SendParams) (err error) {
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("can't do request! Err: %s", err)
+		return respBody, fmt.Errorf("can't do request! Err: %s", err)
 	}
 	defer resp.Body.Close()
 
-	respBody, err := io.ReadAll(resp.Body)
+	respBody, err = io.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("can't read response body! Err: %w", err)
+		return respBody, fmt.Errorf("can't read response body! Err: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("error: %v", string(respBody))
+		return respBody, fmt.Errorf("error: %v", string(respBody))
 	}
 
 	if err = json.Unmarshal(respBody, &inputs.Response); err != nil {
-		return fmt.Errorf("can't unmarshall SomPayments resp: '%v'. Err: %w", string(respBody), err)
+		return respBody, fmt.Errorf("can't unmarshall SomPayments resp: '%v'. Err: %w", string(respBody), err)
 	}
 
 	return

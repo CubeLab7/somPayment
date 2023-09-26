@@ -67,11 +67,16 @@ type CartInitResp struct {
 }
 
 type CallbackResp struct {
-	OrderID    string `json:"orderId"`
-	Status     int    `json:"status"`
-	StatusName string `json:"statusName"`
-	CreateDate string `json:"createDate"`
-	UpdateDate string `json:"updateDate"`
+	OrderID      string  `json:"orderId"`
+	ExchangeRate float64 `json:"exchangeRate"`
+	PaySum       float64 `json:"paySum"`
+	RubSum       float64 `json:"rubSum"`
+	CurrencyCode int     `json:"currencyCode"`
+	PayLink      string  `json:"payLink"`
+	Status       int     `json:"status"`
+	StatusName   string  `json:"statusName"`
+	CreateDate   string  `json:"createDate"`
+	UpdateDate   string  `json:"updateDate"`
 	Recurring
 	ProcessingStatus string `json:"processingStatus"`
 	Pan              string `json:"pan"`
