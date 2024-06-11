@@ -76,7 +76,7 @@ func (s *Service) Callback(ctx context.Context, data string) (respBody []byte, r
 	return
 }
 
-// Получение статуса заказа
+// PostCheck - Получение статуса заказа
 func (s *Service) PostCheck(ctx context.Context, orderID string) (respBody []byte, response *PostCheckResp, err error) {
 	response = new(PostCheckResp)
 
@@ -96,7 +96,7 @@ func (s *Service) PostCheck(ctx context.Context, orderID string) (respBody []byt
 	return
 }
 
-// Проведениe полного возврата
+// Refund - Проведениe полного возврата
 func (s *Service) Refund(ctx context.Context, orderID string) (respBody []byte, response *RefundResp, err error) {
 	response = new(RefundResp)
 
@@ -116,7 +116,7 @@ func (s *Service) Refund(ctx context.Context, orderID string) (respBody []byte, 
 	return
 }
 
-// Получение курса обмена валюты
+// ExchangeRate - Получение курса обмена валюты
 func (s *Service) ExchangeRate(ctx context.Context) (respBody []byte, response *ExchangeRateResp, err error) {
 	response = new(ExchangeRateResp)
 
@@ -133,7 +133,7 @@ func (s *Service) ExchangeRate(ctx context.Context) (respBody []byte, response *
 	return
 }
 
-// Получения списка рекуррентов
+// RecurringList - Получения списка рекуррентов
 func (s *Service) RecurringList(ctx context.Context) (respBody []byte, response *RecurringListResp, err error) {
 	response = new(RecurringListResp)
 
